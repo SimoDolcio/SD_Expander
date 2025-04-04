@@ -71,6 +71,9 @@ namespace SDLib {
       bool begin(uint8_t csPin = SD_CHIP_SELECT_PIN);
       bool begin(uint32_t clock, uint8_t csPin);
 
+	  bool begin(void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t));
+	  bool begin(uint32_t clock, void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t));
+
       //call this when a card is removed. It will allow you to insert and initialise a new card.
       void end();
 

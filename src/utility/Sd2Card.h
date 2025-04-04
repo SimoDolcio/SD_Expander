@@ -202,10 +202,13 @@ class Sd2Card {
        and the default SD chip select pin.
        See sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin).
     */
+	uint8_t init(uint8_t sckRateID, void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
+      return init(sckRateID, SD_CHIP_SELECT_PIN, pinSetMode, pinDigitalWrite);
+    }
     uint8_t init(uint8_t sckRateID) {
       return init(sckRateID, SD_CHIP_SELECT_PIN);
     }
-    uint8_t init(uint8_t sckRateID, uint8_t chipSelectPin);
+    uint8_t init(uint8_t sckRateID, uint8_t chipSelectPin, void (*pinSetMode)(uint8_t) = NULL, void (*pinDigitalWrite)(uint8_t) = NULL);
     void partialBlockRead(uint8_t value);
     /** Returns the current value, true or false, for partial block read. */
     uint8_t partialBlockRead(void) const {
@@ -250,7 +253,16 @@ class Sd2Card {
     uint8_t partialBlockRead_;
     uint8_t status_;
     uint8_t type_;
+	// callback to call chip select external management 
+	void (*_pinSetModeCallback)(uint8_t);
+	void (*_pinDigitalWriteCallback)(uint8_t);
     // private functions
+	void pinSetModeCallbackSet(void (*arg)(uint8_t)) {
+		_pinSetModeCallback = arg;
+	}
+	void pinDigitalWriteCallbackSet(void (*arg)(uint8_t)) {
+		_pinDigitalWriteCallback = arg;
+	}
     uint8_t cardAcmd(uint8_t cmd, uint32_t arg) {
       cardCommand(CMD55, 0);
       return cardCommand(cmd, arg);

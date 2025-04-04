@@ -335,8 +335,40 @@ namespace SDLib {
 
 
   /* Implementation of class used to create `SDCard` object. */
+  bool begin(void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
+      if (root.isOpen()) {
+      root.close();
+    }
 
+    /*
 
+      Performs the initialisation required by the sdfatlib library.
+
+      Return true if initialization succeeds, false otherwise.
+
+    */
+    return card.init(SPI_HALF_SPEED, SD_CHIP_SELECT_PIN, pinSetMode, pinDigitalWrite ) &&
+           volume.init(card) &&
+           root.openRoot(volume);
+  }
+  
+  bool begin(uint32_t clock, void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
+    if (root.isOpen()) {
+      root.close();
+    }
+
+    /*
+
+      Performs the initialisation required by the sdfatlib library.
+
+      Return true if initialization succeeds, false otherwise.
+
+    */
+    return card.init(SPI_HALF_SPEED, SD_CHIP_SELECT_PIN, pinSetMode, pinDigitalWrite ) &&
+		   card.setSpiClock(clock) &&
+           volume.init(card) &&
+           root.openRoot(volume);
+  }
 
   bool SDClass::begin(uint8_t csPin) {
     if (root.isOpen()) {

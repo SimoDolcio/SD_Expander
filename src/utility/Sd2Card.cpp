@@ -175,7 +175,12 @@ uint32_t Sd2Card::cardSize(void) {
 static uint8_t chip_select_asserted = 0;
 
 void Sd2Card::chipSelectHigh(void) {
-  digitalWrite(chipSelectPin_, HIGH);
+  if(_pinDigitalWriteCallback != NULL) {
+	  _pinDigitalWriteCallback(HIGH);
+  } else {
+	  digitalWrite(chipSelectPin_, HIGH);
+  }
+  //digitalWrite(chipSelectPin_, HIGH);
   #ifdef USE_SPI_LIB
   if (chip_select_asserted) {
     chip_select_asserted = 0;
@@ -191,7 +196,12 @@ void Sd2Card::chipSelectLow(void) {
     SDCARD_SPI.beginTransaction(settings);
   }
   #endif
-  digitalWrite(chipSelectPin_, LOW);
+  if(_pinDigitalWriteCallback != NULL) {
+	  _pinDigitalWriteCallback(LOW);
+  } else {
+	  digitalWrite(chipSelectPin_, LOW);
+  }
+  //digitalWrite(chipSelectPin_, LOW);
 }
 //------------------------------------------------------------------------------
 /** Erase a range of blocks.
@@ -254,16 +264,26 @@ uint8_t Sd2Card::eraseSingleBlockEnable(void) {
    the value zero, false, is returned for failure.  The reason for failure
    can be determined by calling errorCode() and errorData().
 */
-uint8_t Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
+uint8_t Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin, void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
   errorCode_ = inBlock_ = partialBlockRead_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
+  pinSetModeCallbackSet(pinSetMode);
+  pinDigitalWriteCallbackSet(pinDigitalWrite);
   // 16-bit init start time allows over a minute
   unsigned int t0 = millis();
   uint32_t arg;
 
   // set pin modes
-  pinMode(chipSelectPin_, OUTPUT);
-  digitalWrite(chipSelectPin_, HIGH);
+  if(_pinSetModeCallback != NULL) {
+	_pinSetModeCallback(OUTPUT);
+  } else {
+	pinMode(chipSelectPin_, OUTPUT);
+  }
+  if(_pinDigitalWriteCallback != NULL) {
+	  _pinDigitalWriteCallback(HIGH);
+  } else {
+	  digitalWrite(chipSelectPin_, HIGH);
+  }
   #ifndef USE_SPI_LIB
   pinMode(SPI_MISO_PIN, INPUT);
   pinMode(SPI_MOSI_PIN, OUTPUT);
