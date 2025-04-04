@@ -335,7 +335,7 @@ namespace SDLib {
 
 
   /* Implementation of class used to create `SDCard` object. */
-  bool begin(void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
+  bool SDClass::begin(void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
       if (root.isOpen()) {
       root.close();
     }
@@ -352,7 +352,7 @@ namespace SDLib {
            root.openRoot(volume);
   }
   
-  bool begin(uint32_t clock, void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
+  bool SDClass::begin(uint32_t clock, void (*pinSetMode)(uint8_t), void (*pinDigitalWrite)(uint8_t)) {
     if (root.isOpen()) {
       root.close();
     }
